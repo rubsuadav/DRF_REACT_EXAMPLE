@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 export default function CreateProject() {
   // 1) definimos el estado inicial de la tarea
@@ -67,21 +68,38 @@ export default function CreateProject() {
       done: allTasksDone,
     };
 
-    const response = await fetch("http://127.0.0.1:8000/api/projects/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(updatedProject),
-    });
+    Swal.fire({
+      title: "¿Estas seguro de que quieres crear el proyecto?",
+      showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: "Si",
+      denyButtonText: "No",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const response = await fetch("http://127.0.0.1:8000/api/projects/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedProject),
+        });
 
-    // validamos los errores del backend
-    if (response.status === 400) {
-      const data = await response.json();
-      setErrors(data);
-      return;
-    }
-    navigate("/projects");
+        // validamos los errores del backend
+        if (response.status === 400) {
+          const data = await response.json();
+          setErrors(data);
+          return;
+        }
+        navigate("/projects");
+        Swal.fire({
+          title: "Proyecto creado",
+          text: "has creado el proyecto con éxito",
+          icon: "success",
+        });
+      } else if (result.isDenied) {
+        navigate("/");
+      }
+    });
   }
 
   // 8) creamos la funcion que se encargara de actualizar el estado de la relacion muchos a muchos

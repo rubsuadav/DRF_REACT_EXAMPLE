@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 
 export default function EditProject() {
   //1) declaramos el estado inicial de la entidad
@@ -53,21 +54,41 @@ export default function EditProject() {
   async function editProject(e) {
     e.preventDefault();
 
-    const response = await fetch(`http://127.0.0.1:8000/api/projects/${id}/`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(project),
-    });
+    Swal.fire({
+      title: "¿Estas seguro de que quieres editar el proyecto?",
+      showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: "Si",
+      denyButtonText: "No",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const response = await fetch(
+          `http://127.0.0.1:8000/api/projects/${id}/`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(project),
+          }
+        );
 
-    //9) validamos los campos de los errores
-    if (response.status === 400) {
-      const data = await response.json();
-      setErrors(data);
-      return;
-    }
-    navigate("/projects");
+        //9) validamos los campos de los errores
+        if (response.status === 400) {
+          const data = await response.json();
+          setErrors(data);
+          return;
+        }
+        navigate("/projects");
+        Swal.fire({
+          title: "Proyecto editado",
+          text: "has editado el proyecto con éxito",
+          icon: "success",
+        });
+      } else if (result.isDenied) {
+        navigate("/");
+      }
+    });
   }
 
   return (

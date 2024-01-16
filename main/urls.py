@@ -8,5 +8,8 @@ router.register(r'tasks', Taskview, "tasks")
 router.register(r'projects', ProjectView, "projects")
 
 urlpatterns = [
-    path("api/", include(router.urls))
+    path("api/", include(router.urls)),
+    path("auth/", include("djoser.urls")),  # para autenticacion
+    path("auth/", include("djoser.urls.authtoken")),  # para autenticacion
+    path("auth/", include("djoser.urls.jwt"))  # para autenticacion JWT
 ]

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 
 // show de tareas
 export default function TaskDetails() {
@@ -28,10 +29,27 @@ export default function TaskDetails() {
 
   // IMPLEMENTACION DEL BORRADO DE TAREA
   async function deleteTask() {
-    await fetch(`http://127.0.0.1:8000/api/tasks/${id}/`, {
-      method: "DELETE",
+    Swal.fire({
+      title: "¿Estas seguro de que quieres borrar la tarea?",
+      showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: "Si",
+      denyButtonText: "No",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        await fetch(`http://127.0.0.1:8000/api/tasks/${id}/`, {
+          method: "DELETE",
+        });
+        navigate("/tasks");
+        Swal.fire({
+          title: "Tarea eliminada",
+          text: "has eliminado la tarea con exito",
+          icon: "success",
+        });
+      } else if (result.isDenied) {
+        navigate("/");
+      }
     });
-    navigate("/tasks");
   }
 
   return (
