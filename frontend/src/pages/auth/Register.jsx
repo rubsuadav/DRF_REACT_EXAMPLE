@@ -32,6 +32,16 @@ export default function Register() {
   //5) creamos la funcion que se encargara de enviar los datos del form
   async function handleSubmit(e) {
     e.preventDefault();
+
+    // 8) invocar a la funcion de validación
+    const errors = validateForm();
+
+    //9) comprobamos si el tamaño del JSON de los errores es >0 para actualizar el estado de los errores (==> existen errores)
+    if (Object.keys(errors).length > 0) {
+      setErrors(errors);
+      return;
+    }
+
     const response = await fetch("http://127.0.0.1:8000/auth/users/", {
       method: "POST",
       headers: {
@@ -47,6 +57,42 @@ export default function Register() {
       return;
     }
     navigate("/login");
+  }
+
+  //7) crear una funcion auxiliar que valide las validaciones extras que no se validan desde el backend
+  function validateForm() {
+    let errors = {};
+    // RN-1: first_name campo obligatorio
+    if (!form.first_name) {
+      errors.first_name = "El nombre debe de ser obligatorio";
+      // RN-2 first_name mas de 3 caracteres
+    } else if (form.first_name.length <= 3) {
+      errors.first_name = "El nombre debe de tener mas de 3 caracteres";
+    }
+
+    // RN-3: last_name campo obligatorio
+    if (!form.last_name) {
+      errors.last_name = "El apellido debe de ser obligatorio";
+      // RN-4 last_name mas de 3 caracteres
+    } else if (form.last_name.length <= 3) {
+      errors.last_name = "El apellido debe de tener mas de 3 caracteres";
+    }
+
+    //RN-5 email no nulo y q sea de gmail, hotmail, outlook
+    if (!form.email) {
+      errors.email = "El email debe de ser obligatorio";
+    } else if (
+      !/^\w+([.-]?\w+)*@(gmail|hotmail|outlook)\.com$/.test(form.email)
+    ) {
+      errors.email = "El email debe de ser de gmail, hotmail o outlook";
+    }
+
+    //RN-6 contraseñas igual (password = password2)
+    if (form.password !== form.password2) {
+      errors.password2 = "Las contraseñas deben coincidir";
+    }
+
+    return errors;
   }
 
   return (
@@ -73,6 +119,9 @@ export default function Register() {
               onChange={(e) => onInputChange(e)} // llamada a la funcion que se encargara de actualizar el estado de la entidad
             />
             {/* validacion del campo del formulario */}
+            {errors.first_name && (
+              <p className="text-red-500 text-xs italic">{errors.first_name}</p>
+            )}
           </div>
           <div className="mb-4">
             <label
@@ -89,6 +138,9 @@ export default function Register() {
               value={last_name} // valor del atributo de la entidad del backend
               onChange={(e) => onInputChange(e)} // llamada a la funcion que se encargara de actualizar el estado de la entidad
             />
+            {errors.last_name && (
+              <p className="text-red-500 text-xs italic">{errors.last_name}</p>
+            )}
           </div>
           <div className="mb-4">
             <label
@@ -143,6 +195,9 @@ export default function Register() {
               value={password2} // valor del atributo de la entidad del backend
               onChange={(e) => onInputChange(e)} // llamada a la funcion que se encargara de actualizar el estado de la entidad
             />
+            {errors.password2 && (
+              <p className="text-red-500 text-xs italic">{errors.password2}</p>
+            )}
           </div>
           <div className="mb-4">
             <label

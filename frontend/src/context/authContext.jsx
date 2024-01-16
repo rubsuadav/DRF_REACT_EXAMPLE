@@ -41,8 +41,8 @@ export function AuthContextProvider({ children }) {
   }, []);
 
   const logout = useCallback(function () {
-    localStorage.removeItem("access_token", token_access);
-    localStorage.removeItem("refresh_token", token_refresh);
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
     //localStorage.removeItem("role", role); /*en el caso de que aplique la lógica de los roles en el context*/
     //setRole({ isAdmin: false, isCaptain: false, isSupervisor: false }); /*en el caso de que aplique la lógica de los roles en el context*/
     setIsAuthenticated(false);
