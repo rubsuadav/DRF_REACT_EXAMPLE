@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 
 // para hacer un edit de una entidad simple (es un show + create en el mismo componente)
 export default function EditTask() {
@@ -52,31 +53,45 @@ export default function EditTask() {
   // 7) llamar al metodo PUT de la API REST
   async function editTask(e) {
     e.preventDefault();
-    const response = await fetch(`http://127.0.0.1:8000/api/tasks/${id}/`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(task),
+    Swal.fire({
+      title: "¿Estas seguro de que quieres editar la tarea?",
+      showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: "Si",
+      denyButtonText: "No",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const response = await fetch(`http://127.0.0.1:8000/api/tasks/${id}/`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(task),
+        });
+
+        //9) validamos los errores del backend
+        if (response.status === 400) {
+          const data = await response.json();
+          setErrors(data);
+          return;
+        }
+        navigate("/tasks");
+        Swal.fire({
+          title: "Tarea editada",
+          text: "has editado la tarea con éxito",
+          icon: "success",
+        });
+      } else if (result.isDenied) {
+        navigate("/");
+      }
     });
-
-    //9) validamos los errores del backend
-    if (response.status === 400) {
-      const data = await response.json();
-      setErrors(data);
-      return;
-    }
-
-    navigate("/tasks");
   }
 
   return (
     //mismo JSX q crear!!!!!!!
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md p-8 m-4 bg-white rounded shadow-md">
-        <h2 className="text-2xl font-bold text-center mb-4">
-          Editar tarea
-        </h2>
+        <h2 className="text-2xl font-bold text-center mb-4">Editar tarea</h2>
         <form onSubmit={(e) => editTask(e)}>
           {/* llamada a la funcion que se encargara de hacer el post a la api*/}
           <div className="mb-4">

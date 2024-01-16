@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 
 export default function ProjectDetails() {
   //1) creamos estado inicial
@@ -48,10 +49,27 @@ export default function ProjectDetails() {
 
   // IMPLEMENTACION DEL BORRADO DE TAREA
   async function deleteProject() {
-    await fetch(`http://127.0.0.1:8000/api/projects/${id}/`, {
-      method: "DELETE",
+    Swal.fire({
+      title: "¿Estas seguro de que quieres borrar el proyecto?",
+      showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: "Si",
+      denyButtonText: "No",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        await fetch(`http://127.0.0.1:8000/api/projects/${id}/`, {
+          method: "DELETE",
+        });
+        navigate("/projects");
+        Swal.fire({
+          title: "Proyecto eliminado",
+          text: "has eliminado el proyecto con éxito",
+          icon: "success",
+        });
+      } else if (result.isDenied) {
+        navigate("/");
+      }
     });
-    navigate("/projects");
   }
 
   return (

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 export default function Register() {
   // 1) creamos el estado del formulario de registro
@@ -33,30 +34,47 @@ export default function Register() {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    // 8) invocar a la funcion de validación
-    const errors = validateForm();
+    Swal.fire({
+      title: "¿Estas seguro de que quieres registrarte?",
+      showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: "Si",
+      denyButtonText: "No",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        // 8) invocar a la funcion de validación
+        const errors = validateForm();
 
-    //9) comprobamos si el tamaño del JSON de los errores es >0 para actualizar el estado de los errores (==> existen errores)
-    if (Object.keys(errors).length > 0) {
-      setErrors(errors);
-      return;
-    }
+        //9) comprobamos si el tamaño del JSON de los errores es >0 para actualizar el estado de los errores (==> existen errores)
+        if (Object.keys(errors).length > 0) {
+          setErrors(errors);
+          return;
+        }
 
-    const response = await fetch("http://127.0.0.1:8000/auth/users/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(form),
+        const response = await fetch("http://127.0.0.1:8000/auth/users/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(form),
+        });
+
+        //6) validamos los campos del form
+        if (response.status === 400) {
+          const data = await response.json();
+          setErrors(data);
+          return;
+        }
+        navigate("/login");
+        Swal.fire({
+          title: "Registrado",
+          text: "te has registrado exitosamente, debes de iniciar sesion para poder autenticarte",
+          icon: "success",
+        });
+      } else if (result.isDenied) {
+        navigate("/");
+      }
     });
-
-    //6) validamos los campos del form
-    if (response.status === 400) {
-      const data = await response.json();
-      setErrors(data);
-      return;
-    }
-    navigate("/login");
   }
 
   //7) crear una funcion auxiliar que valide las validaciones extras que no se validan desde el backend

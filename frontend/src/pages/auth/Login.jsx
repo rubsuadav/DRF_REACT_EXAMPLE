@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 // Local imports
 import { useAuthContext } from "../../context/authContext";
@@ -42,20 +43,38 @@ export default function Login() {
       body: JSON.stringify(form),
     });
     const data = await response.json();
-    switch (response.status) {
-      case 200:
-        login(data.access, data.refresh);
-        navigate("/");
-        break;
-      case 401:
-        setErrors(data);
-        break;
-      case 400:
-        setErrors(data);
-        break;
-      default:
-        break;
-    }
+
+    Swal.fire({
+      title: "¿Estas seguro de que quieres iniciar sesión?",
+      showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: "Si",
+      denyButtonText: "No",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        switch (response.status) {
+          case 200:
+            login(data.access, data.refresh);
+            navigate("/");
+            Swal.fire({
+              title: "Sesión iniciada",
+              text: "has iniciado la sesión con éxito",
+              icon: "success",
+            });
+            break;
+          case 401:
+            setErrors(data);
+            break;
+          case 400:
+            setErrors(data);
+            break;
+          default:
+            break;
+        }
+      } else if (result.isDenied) {
+        navigate("/login");
+      }
+    });
   }
 
   return (

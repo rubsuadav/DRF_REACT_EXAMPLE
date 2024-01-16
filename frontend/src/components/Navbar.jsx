@@ -1,5 +1,6 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 // local imports
 import { useAuthContext } from "../context/authContext";
@@ -8,9 +9,29 @@ export default function Navbar() {
   //AGREGAMOS EL CONTEXTO DE AUTENTICACION Y AUTORIZACION
   const { isAuthenticated, logout } = useAuthContext();
 
+  // para redireccionar al usuario //
+  let navigate = useNavigate();
+
   //CERRAR SESION
   function Logout() {
-    logout();
+    Swal.fire({
+      title: "¿Estas seguro de que quieres cerrar sesión?",
+      showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: "Si",
+      denyButtonText: "No",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        logout();
+        Swal.fire({
+          title: "Sesión cerrada",
+          text: "has cerrado la sesión con éxito",
+          icon: "success",
+        });
+      } else if (result.isDenied) {
+        navigate("/");
+      }
+    });
   }
 
   return (
