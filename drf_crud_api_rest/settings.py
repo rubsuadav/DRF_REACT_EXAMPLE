@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'coreapi',  # para documentar api
     'corsheaders',  # para conectar front con back
     'rest_framework',
     'rest_framework.authtoken',  # para autenticacion usando JWT
@@ -150,3 +151,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS CONFIGURATION PARA CONECTAR FRONT CON BACK
 CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]
+
+
+# PARA DOCUMENTAR API DE MANERA AUTOMÁTICA
+REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
+}
