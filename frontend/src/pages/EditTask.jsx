@@ -52,7 +52,7 @@ export default function EditTask() {
   // 7) llamar al metodo PUT de la API REST
   async function editTask(e) {
     e.preventDefault();
-    const response = fetch(`http://127.0.0.1:8000/api/tasks/${id}/`, {
+    const response = await fetch(`http://127.0.0.1:8000/api/tasks/${id}/`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
