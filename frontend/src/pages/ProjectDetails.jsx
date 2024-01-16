@@ -18,7 +18,7 @@ export default function ProjectDetails() {
 
   //3) hacemos petcición a la API REST
   async function getProject() {
-    const response = await fetch(`http://127.0.0.1:8000/api/projects/${id}/`, {
+    const response = await fetch(`https://mario.pythonanywhere.com/api/projects/${id}/`, {
       method: "GET",
     });
     const data = await response.json();
@@ -34,7 +34,7 @@ export default function ProjectDetails() {
   // 3.1) hacemos la peticion a la api para pillar las tareas del proyecto
   async function getProjectTasks(task_id) {
     const response = await fetch(
-      `http://127.0.0.1:8000/api/tasks/${task_id}/`,
+      `https://mario.pythonanywhere.com/api/tasks/${task_id}/`,
       {
         method: "GET",
       }
@@ -57,7 +57,7 @@ export default function ProjectDetails() {
       denyButtonText: "No",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        await fetch(`http://127.0.0.1:8000/api/projects/${id}/`, {
+        await fetch(`https://mario.pythonanywhere.com/api/projects/${id}/`, {
           method: "DELETE",
         });
         navigate("/projects");
