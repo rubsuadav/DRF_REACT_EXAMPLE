@@ -44,7 +44,7 @@ export default function CreateTask() {
       denyButtonText: "No",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        const response = await fetch("http://127.0.0.1:8000/api/tasks/", {
+        const response = await fetch("https://mario.pythonanywhere.com/api/tasks/", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

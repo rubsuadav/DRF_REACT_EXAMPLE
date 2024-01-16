@@ -15,7 +15,7 @@ export default function TaskDetails() {
 
   //3) hacemos petcición a la API REST
   async function getTask() {
-    const response = await fetch(`http://127.0.0.1:8000/api/tasks/${id}/`, {
+    const response = await fetch(`https://mario.pythonanywhere.com/api/tasks/${id}/`, {
       method: "GET",
     });
     const data = await response.json();
@@ -37,7 +37,7 @@ export default function TaskDetails() {
       denyButtonText: "No",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        await fetch(`http://127.0.0.1:8000/api/tasks/${id}/`, {
+        await fetch(`https://mario.pythonanywhere.com/api/tasks/${id}/`, {
           method: "DELETE",
         });
         navigate("/tasks");

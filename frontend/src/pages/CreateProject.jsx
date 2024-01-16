@@ -27,7 +27,7 @@ export default function CreateProject() {
 
   // 4) creamos la funcion de obtener las tareas para la relacion muchos a muchos
   async function getTasks() {
-    const response = await fetch("http://127.0.0.1:8000/api/tasks/", {
+    const response = await fetch("https://mario.pythonanywhere.com/api/tasks/", {
       method: "GET",
     });
     const data = await response.json();
@@ -76,7 +76,7 @@ export default function CreateProject() {
       denyButtonText: "No",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        const response = await fetch("http://127.0.0.1:8000/api/projects/", {
+        const response = await fetch("https://mario.pythonanywhere.com/api/projects/", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

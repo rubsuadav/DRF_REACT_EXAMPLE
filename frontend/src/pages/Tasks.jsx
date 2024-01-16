@@ -8,7 +8,7 @@ export default function Tasks() {
 
   // 2) llamada a la API REST
   async function getAllTasks() {
-    const response = await fetch("http://127.0.0.1:8000/api/tasks/", {
+    const response = await fetch("https://mario.pythonanywhere.com/api/tasks/", {
       method: "GET",
     });
 
