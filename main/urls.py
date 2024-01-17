@@ -4,6 +4,10 @@ from .views import Taskview, ProjectView
 # para documentar la API de manera automática
 from rest_framework.documentation import include_docs_urls
 
+# pasarela de pago
+from .views import StripeCustomer, StripeCheckoutSession, StripePrice
+
+
 router = routers.DefaultRouter()
 
 router.register(r'tasks', Taskview, "tasks")
@@ -17,4 +21,8 @@ urlpatterns = [
     # para documentar la API de manera automática
     path("", include_docs_urls(
         title="Complete API REST FULL including authentication")),
+    # Pasarela de pago ##########################################
+    path("api/customer/", StripeCustomer.as_view()),
+    path("api/price/", StripePrice.as_view()),
+    path("api/checkout/", StripeCheckoutSession.as_view()),
 ]
