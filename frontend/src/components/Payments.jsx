@@ -20,42 +20,37 @@ export default function Payments() {
 
   // 1.2) estado inicial para recoger el valor del precio
   const [form2, setForm2] = useState({
-    price_value: 0,
+    price_value: "",
   });
 
-  // 2) estado inicial para recoger los datos del cliente y el valor del precio que nos devuelve el backend en el caso de éxito
-  const [customerId, setCustomerId] = useState({});
-  const [priceId, setPriceId] = useState({});
-  const [sessionId, setSessionId] = useState({});
-
-  // 3.1) estado inicial para recoger los errores del formulario del cliente
+  // 2.1) estado inicial para recoger los errores del formulario del cliente
   const [errors, setErrors] = useState();
 
-  // 3.2) estado inicial para recoger los errores del formulario del precio
+  // 2.2) estado inicial para recoger los errores del formulario del precio
   const [errors2, setErrors2] = useState({});
 
-  // 4.1) instancias de los atrib del form para recoger los datos del cliente
+  // 3.1) instancias de los atrib del form para recoger los datos del cliente
   const { name, last_name, email, username, phone } = form;
 
-  // 4.2) instancias de los atrib del form para recoger el valor del precio
+  // 3.2) instancias de los atrib del form para recoger el valor del precio
   const { price_value } = form2;
 
-  // 5) crear la funcion que se encargara en cambiar el estado del formualario
-  function onInputChange(e) {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    setForm2({ ...form2, [e.target.name]: e.target.value });
-
-    // 5.1) limpiamos los errores del formulario del cliente
-    setErrors();
-
-    // 5.2) limpiamos los errores del formulario del precio
-    setErrors2({});
+  // 4) crear la funcion que se encargara en cambiar el estado del formualario
+  function onInputChange(e, formType) {
+    if (formType === "customer") {
+      setForm({ ...form, [e.target.name]: e.target.value });
+      // 4.1) limpiamos los errores del formulario del cliente
+      setErrors();
+    } else if (formType === "price") {
+      setForm2({ ...form2, [e.target.name]: e.target.value });
+      // 4.2) limpiamos los errores del formulario del precio
+      setErrors2({});
+    }
   }
 
-  // 6) crear la funcion que se encargara de enviar los datos del formulario al backend
+  // 5) crear la funcion que se encargara de enviar los datos del formulario al backend
   async function handleSubmit(e) {
     e.preventDefault();
-
     // POST: parametros: name, last_name, email, username, phone
     const customerResponse = await fetch(
       "http://127.0.0.1:8000/api/customer/",
@@ -69,7 +64,7 @@ export default function Payments() {
     );
     const customerData = await customerResponse.json();
 
-    // 7.1) validamos los campos del form para recoger los datos del cliente
+    // 6.1) validamos los campos del form para recoger los datos del cliente
     let customerErrors = null;
     switch (customerResponse.status) {
       case 400:
@@ -77,7 +72,6 @@ export default function Payments() {
         setErrors(customerData);
         break;
       case 201:
-        setCustomerId(customerData);
         break;
       default:
         break;
@@ -99,7 +93,7 @@ export default function Payments() {
     });
     const priceData = await priceResponse.json();
 
-    // 7.2) validamos los campos del form para recoger el valor del precio
+    // 6.2) validamos los campos del form para recoger el valor del precio
     let priceErrors = null;
     switch (priceResponse.status) {
       case 400:
@@ -107,7 +101,6 @@ export default function Payments() {
         setErrors2(priceData);
         break;
       case 201:
-        setPriceId(priceData);
         break;
       default:
         break;
@@ -120,13 +113,12 @@ export default function Payments() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        customer_id: customerId["id del cliente"],
-        price_id: priceId["id del precio"],
+        customer_id: customerData["id del cliente"],
+        price_id: priceData["id del precio"],
         success_url: "http://localhost:5173/payment/success",
       }),
     });
     const paymentData = await paymentResponse.json();
-    setSessionId(paymentData["id de la sesion"]);
 
     // resolvemos la promesa de stripe
     const stripe = await stripePromise;
@@ -145,7 +137,7 @@ export default function Payments() {
         });
         if (alert.isConfirmed) {
           await stripe.redirectToCheckout({
-            sessionId: sessionId,
+            sessionId: paymentData["id de la sesion"],
           });
         }
       }
@@ -176,7 +168,7 @@ export default function Payments() {
               placeholder="Escribe tu nombre de usuario"
               name="name" // nombre del atributo de la entidad del backend
               value={name} // valor del atributo de la entidad del backend
-              onChange={(e) => onInputChange(e)} // llamada a la funcion que se encargara de actualizar el estado de la entidad
+              onChange={(e) => onInputChange(e, "customer")} // llamada a la funcion que se encargara de actualizar el estado de la entidad
             />
             {/* validacion del campo del formulario */}
             {errors && <p className="text-red-500 text-xs italic">{errors}</p>}
@@ -194,7 +186,7 @@ export default function Payments() {
               placeholder="Introduce tus apellidos"
               name="last_name" // nombre del atributo de la entidad del backend
               value={last_name} // valor del atributo de la entidad del backend
-              onChange={(e) => onInputChange(e)} // llamada a la funcion que se encargara de actualizar el estado de la entidad
+              onChange={(e) => onInputChange(e, "customer")} // llamada a la funcion que se encargara de actualizar el estado de la entidad
             />
             {errors && <p className="text-red-500 text-xs italic">{errors}</p>}
           </div>
@@ -211,7 +203,7 @@ export default function Payments() {
               placeholder="Introduce tu username"
               name="username" // nombre del atributo de la entidad del backend
               value={username} // valor del atributo de la entidad del backend
-              onChange={(e) => onInputChange(e)} // llamada a la funcion que se encargara de actualizar el estado de la entidad
+              onChange={(e) => onInputChange(e, "customer")} // llamada a la funcion que se encargara de actualizar el estado de la entidad
             />
             {errors && <p className="text-red-500 text-xs italic">{errors}</p>}
           </div>
@@ -228,7 +220,7 @@ export default function Payments() {
               placeholder="Escribe tu email"
               name="email" // nombre del atributo de la entidad del backend
               value={email} // valor del atributo de la entidad del backend
-              onChange={(e) => onInputChange(e)} // llamada a la funcion que se encargara de actualizar el estado de la entidad
+              onChange={(e) => onInputChange(e, "customer")} // llamada a la funcion que se encargara de actualizar el estado de la entidad
             />
             {errors && <p className="text-red-500 text-xs italic">{errors}</p>}
           </div>
@@ -245,7 +237,7 @@ export default function Payments() {
               placeholder="Escribe tu telefono"
               name="phone" // nombre del atributo de la entidad del backend
               value={phone} // valor del atributo de la entidad del backend
-              onChange={(e) => onInputChange(e)} // llamada a la funcion que se encargara de actualizar el estado de la entidad
+              onChange={(e) => onInputChange(e, "customer")} // llamada a la funcion que se encargara de actualizar el estado de la entidad
             />
             {errors && <p className="text-red-500 text-xs italic">{errors}</p>}
           </div>
@@ -262,7 +254,7 @@ export default function Payments() {
               placeholder="Escribe el precio del producto"
               name="price_value" // nombre del atributo de la entidad del backend
               value={price_value} // valor del atributo de la entidad del backend
-              onChange={(e) => onInputChange(e)} // llamada a la funcion que se encargara de actualizar el estado de la entidad
+              onChange={(e) => onInputChange(e, "price")} // llamada a la funcion que se encargara de actualizar el estado de la entidad
               required
             />
             {errors2.price_value && (
