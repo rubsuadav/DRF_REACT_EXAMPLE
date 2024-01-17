@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-y_uz!5v^wwsjeujo@8qh4769$=_f4s2io(ndj%k-4v61o-(5g3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -142,6 +142,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = "/home/mario/DRF_REACT_EXAMPLE/drf_crud_api_rest"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -150,7 +151,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # CORS CONFIGURATION PARA CONECTAR FRONT CON BACK
-CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]
+CORS_ALLOW_ALL_ORIGINS = True
 
 
 # PARA DOCUMENTAR API DE MANERA AUTOMÁTICA

@@ -70,7 +70,7 @@ class StripePrice(APIView):
     def post(self, request, *args, **kwargs):
         try:
             # obtenemos el precio del objeto a pagar de la solicitud (atrib OBLIGATORIO!!!!)
-            price_value = int(request.data['price_value'])
+            price_value = float(request.data['price_value'])
 
             price = stripe.Price.create(
                 # divisa en la que se va a pagar, ver (https://stripe.com/docs/currencies) para todas las divisas posibles
@@ -81,7 +81,7 @@ class StripePrice(APIView):
                 },
                 # precio del producto, por def viene en centimos!!!! (atrib obligatorio!!!!)
                 # price_value se considera en euros!!!
-                unit_amount=price_value*100,
+                unit_amount=int(round(price_value*100)),
 
                 # intervalo de pago para implementar pagos recurrentes (atrib opcional) (USADO PARA SUBCRIPCIONES!!!!!)
                 # recurring={
