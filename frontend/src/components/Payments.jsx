@@ -1,5 +1,11 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { loadStripe } from "@stripe/stripe-js";
+
+// cargar la clave publica de stripe
+const stripePromise = loadStripe(
+  "pk_test_51N4BMaGgNDimUjxY3aZ4eFC8osFpmDa0h9SXRzfHSJLmrTzXZvG8HbmRVXgR8m97vMU80ObFAuOSFfZr2ZOWxVft00NNHuk0Ue"
+);
 
 export default function Payments() {
   // 1) estados iniciales del formulario para recoger los datos del cliente y el valor del precio ya que son obligatorios desde el backend
@@ -109,6 +115,18 @@ export default function Payments() {
     });
     const paymentData = await paymentResponse.json();
     setSessionId(paymentData["id de la sesion"]);
+
+    // resolvemos la promesa de stripe
+    const stripe = await stripePromise;
+
+    // llamada a la funcion de stripe para redirigir al cliente a la pasarela de pago
+    const { error } = await stripe.redirectToCheckout({
+      sessionId: sessionId,
+    });
+
+    if (error) {
+      console.log(error);
+    }
   }
 
   return (
