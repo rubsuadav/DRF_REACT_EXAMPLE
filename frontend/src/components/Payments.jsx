@@ -24,7 +24,7 @@ export default function Payments() {
   });
 
   // 2.1) estado inicial para recoger los errores del formulario del cliente
-  const [errors, setErrors] = useState();
+  const [errors, setErrors] = useState({});
 
   // 2.2) estado inicial para recoger los errores del formulario del precio
   const [errors2, setErrors2] = useState({});
@@ -40,7 +40,7 @@ export default function Payments() {
     if (formType === "customer") {
       setForm({ ...form, [e.target.name]: e.target.value });
       // 4.1) limpiamos los errores del formulario del cliente
-      setErrors();
+      setErrors({});
     } else if (formType === "price") {
       setForm2({ ...form2, [e.target.name]: e.target.value });
       // 4.2) limpiamos los errores del formulario del precio
@@ -171,7 +171,9 @@ export default function Payments() {
               onChange={(e) => onInputChange(e, "customer")} // llamada a la funcion que se encargara de actualizar el estado de la entidad
             />
             {/* validacion del campo del formulario */}
-            {errors && <p className="text-red-500 text-xs italic">{errors}</p>}
+            {errors.name && (
+              <p className="text-red-500 text-xs italic">{errors.name}</p>
+            )}
           </div>
           <div className="mb-4">
             <label
@@ -188,7 +190,9 @@ export default function Payments() {
               value={last_name} // valor del atributo de la entidad del backend
               onChange={(e) => onInputChange(e, "customer")} // llamada a la funcion que se encargara de actualizar el estado de la entidad
             />
-            {errors && <p className="text-red-500 text-xs italic">{errors}</p>}
+            {errors.last_name && (
+              <p className="text-red-500 text-xs italic">{errors.last_name}</p>
+            )}
           </div>
           <div className="mb-4">
             <label
@@ -205,7 +209,9 @@ export default function Payments() {
               value={username} // valor del atributo de la entidad del backend
               onChange={(e) => onInputChange(e, "customer")} // llamada a la funcion que se encargara de actualizar el estado de la entidad
             />
-            {errors && <p className="text-red-500 text-xs italic">{errors}</p>}
+            {errors.username && (
+              <p className="text-red-500 text-xs italic">{errors.username}</p>
+            )}
           </div>
           <div className="mb-4">
             <label
@@ -222,7 +228,9 @@ export default function Payments() {
               value={email} // valor del atributo de la entidad del backend
               onChange={(e) => onInputChange(e, "customer")} // llamada a la funcion que se encargara de actualizar el estado de la entidad
             />
-            {errors && <p className="text-red-500 text-xs italic">{errors}</p>}
+            {errors.email && (
+              <p className="text-red-500 text-xs italic">{errors.email}</p>
+            )}
           </div>
           <div className="mb-4">
             <label
@@ -239,7 +247,9 @@ export default function Payments() {
               value={phone} // valor del atributo de la entidad del backend
               onChange={(e) => onInputChange(e, "customer")} // llamada a la funcion que se encargara de actualizar el estado de la entidad
             />
-            {errors && <p className="text-red-500 text-xs italic">{errors}</p>}
+            {errors.phone && (
+              <p className="text-red-500 text-xs italic">{errors.phone}</p>
+            )}
           </div>
           <div className="mb-4">
             <label

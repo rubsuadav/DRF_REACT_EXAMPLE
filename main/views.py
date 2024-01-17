@@ -60,8 +60,7 @@ class StripeCustomer(APIView):
             )
             return Response(status=status.HTTP_201_CREATED, data={"id del cliente": customer.id})
         except ValidationError as e:
-            for error in e.detail.values():
-                return Response(status=status.HTTP_400_BAD_REQUEST, data=str(error))
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=e.detail)
         except KeyError:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data={"error": "No se han enviado todos los datos."})
 
