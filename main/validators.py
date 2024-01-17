@@ -4,7 +4,6 @@ from rest_framework.exceptions import ValidationError
 
 def validate_customer(name, last_name, email, username, phone):
     errors = {}
-
     if not name or len(name) < 3:
         errors["name"] = "El nombre debe tener al menos 3 caracteres."
 
@@ -33,12 +32,3 @@ def validate_checkout_session(customer_id, quantity, price_id):
 
     if quantity and quantity < 1:
         raise ValidationError("La cantidad debe ser mayor que 0.")
-
-
-def validate_price_value(price_value):
-    errors = {}
-    if not price_value or price_value < 0:
-        errors["price_value"] = "El precio debe de minimo gratis"
-
-    if errors:
-        raise ValidationError(errors)

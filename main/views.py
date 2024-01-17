@@ -11,6 +11,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from .validators import *
 from rest_framework.exceptions import ValidationError
+from stripe._error import InvalidRequestError
 
 
 class Taskview(viewsets.ModelViewSet):
@@ -48,7 +49,7 @@ class StripeCustomer(APIView):
 
             # creamos el cliente
             customer = stripe.Customer.create(
-                name=name + last_name,  # nombre completo del cliente
+                name=name + " " + last_name,  # nombre completo del cliente
                 email=email,  # email del cliente
                 phone=phone,  # telefono del cliente
                 metadata={
@@ -59,7 +60,8 @@ class StripeCustomer(APIView):
             )
             return Response(status=status.HTTP_201_CREATED, data={"id del cliente": customer.id})
         except ValidationError as e:
-            return Response(status=status.HTTP_400_BAD_REQUEST, data=str(e.detail))
+            for error in e.detail.values():
+                return Response(status=status.HTTP_400_BAD_REQUEST, data=str(error))
         except KeyError:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data={"error": "No se han enviado todos los datos."})
 
@@ -70,9 +72,6 @@ class StripePrice(APIView):
         try:
             # obtenemos el precio del objeto a pagar de la solicitud (atrib OBLIGATORIO!!!!)
             price_value = int(request.data['price_value'])
-
-            # validamos los datos
-            validate_price_value(price_value)
 
             price = stripe.Price.create(
                 # divisa en la que se va a pagar, ver (https://stripe.com/docs/currencies) para todas las divisas posibles
@@ -92,8 +91,10 @@ class StripePrice(APIView):
                 # } // DESCOMENTAR EN CASO DE IMPLEMENTAR PAGOS RECURRENTES MEDIANTE SUBCRIPCIONES!!!!
             )
             return Response(status=status.HTTP_201_CREATED, data={"id del precio": price.id})
-        except ValidationError as e:
-            return Response(status=status.HTTP_400_BAD_REQUEST, data=str(e.detail))
+        except ValueError:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=str("El precio debe ser un número"))
+        except InvalidRequestError:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=str("El precio debe de ser postivo o 0"))
         except KeyError:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data={"error": "No se han enviado todos los datos."})
 
