@@ -59,7 +59,7 @@ class StripeCustomer(APIView):
             )
             return Response(status=status.HTTP_201_CREATED, data={"id del cliente": customer.id})
         except ValidationError as e:
-            return Response(status=status.HTTP_400_BAD_REQUEST, data={"error": str(e.detail[0])})
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=str(e.detail))
         except KeyError:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data={"error": "No se han enviado todos los datos."})
 
@@ -93,7 +93,7 @@ class StripePrice(APIView):
             )
             return Response(status=status.HTTP_201_CREATED, data={"id del precio": price.id})
         except ValidationError as e:
-            return Response(status=status.HTTP_400_BAD_REQUEST, data={"error": str(e.detail[0])})
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=str(e.detail))
         except KeyError:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data={"error": "No se han enviado todos los datos."})
 
@@ -107,7 +107,7 @@ class StripeCheckoutSession(APIView):
 
             # obtenemos la cantidad de objetos a pagar de la solicitud (atrib OPCIONAL)
             # En el caso de que tengais varios items a pagar, x ejemplo varios PCs, etc (es decir, objetos tangibles))
-            quantity = request.data['quantity']
+            # quantity = request.data['quantity']
 
             # obtenemos el precio del objeto a pagar de la solicitud (atrib OBLIGATORIO)
             price_id = request.data['price_id']
@@ -120,8 +120,8 @@ class StripeCheckoutSession(APIView):
                 currency="eur",  # divisa en la que se va a pagar
                 customer=customer_id,  # id del cliente (atrib obligatorio)
                 line_items=[{
-                    # cantidad de objetos a pagar (opcional ==> se puede quitar)
-                    "quantity": quantity,  # cantidad de objetos a pagar
+                    # cantidad de objetos a pagar (opcional ==> se puede quitar o poner "quantity" en vez de 1 si se quiere cambiar)
+                    "quantity": 1,
                     "price": price_id,  # id del precio del producto
                 }],
                 mode="payment",  # modo de pago

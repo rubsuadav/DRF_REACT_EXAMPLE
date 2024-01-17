@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 // local layout imports
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import Payments from "./components/Payments";
 
 // local pages imports
 import Home from "./pages/Home";
@@ -16,7 +17,7 @@ import ProjectDetails from "./pages/ProjectDetails";
 import CreateProject from "./pages/CreateProject";
 import EditProject from "./pages/EditProject";
 import Login from "./pages/auth/Login";
-import Register from "./pages/auth/Register"
+import Register from "./pages/auth/Register";
 
 // Authentication and routes
 import { AuthContextProvider } from "./context/authContext";
@@ -54,6 +55,8 @@ export default function App() {
               {/* Login and register */}
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              {/* Payments */}
+              <Route path="/payments" element={<Payments />} />
             </Route>
           </Routes>
           <Footer />
