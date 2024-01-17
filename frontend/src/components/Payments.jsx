@@ -9,8 +9,6 @@ const stripePromise = loadStripe(
 );
 
 export default function Payments() {
-  // 1) estados iniciales del formulario para recoger los datos del cliente y el valor del precio ya que son obligatorios desde el backend
-
   // 1.1) estado inicial para recoger los datos del cliente
   const [form, setForm] = useState({
     name: "",
@@ -30,15 +28,11 @@ export default function Payments() {
   const [priceId, setPriceId] = useState({});
   const [sessionId, setSessionId] = useState({});
 
-  // 3) estado inicial para recoger los errores del formulario del cliente y el valor del precio
-
   // 3.1) estado inicial para recoger los errores del formulario del cliente
   const [errors, setErrors] = useState();
 
   // 3.2) estado inicial para recoger los errores del formulario del precio
   const [errors2, setErrors2] = useState({});
-
-  // 4) creamos las instancias de los atrib del form
 
   // 4.1) instancias de los atrib del form para recoger los datos del cliente
   const { name, last_name, email, username, phone } = form;
@@ -50,8 +44,6 @@ export default function Payments() {
   function onInputChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
     setForm2({ ...form2, [e.target.name]: e.target.value });
-
-    //limpiamos los errores del formulario del cliente y el valor del precio
 
     // 5.1) limpiamos los errores del formulario del cliente
     setErrors();
@@ -78,8 +70,10 @@ export default function Payments() {
     const customerData = await customerResponse.json();
 
     // 7.1) validamos los campos del form para recoger los datos del cliente
+    let customerErrors = null;
     switch (customerResponse.status) {
       case 400:
+        customerErrors = customerData;
         setErrors(customerData);
         break;
       case 201:
@@ -90,7 +84,6 @@ export default function Payments() {
     }
 
     // POST: parametros: price_value
-
     // Verificar que el precio sea mayor que 0 antes de enviar el formulario
     if (form2.price_value < 0) {
       setErrors2({ price_value: "El precio no debe de ser menor que 0" });
@@ -107,8 +100,10 @@ export default function Payments() {
     const priceData = await priceResponse.json();
 
     // 7.2) validamos los campos del form para recoger el valor del precio
+    let priceErrors = null;
     switch (priceResponse.status) {
       case 400:
+        priceErrors = priceData;
         setErrors2(priceData);
         break;
       case 201:
@@ -127,6 +122,7 @@ export default function Payments() {
       body: JSON.stringify({
         customer_id: customerId["id del cliente"],
         price_id: priceId["id del precio"],
+        success_url: "http://localhost:5173/payment/success",
       }),
     });
     const paymentData = await paymentResponse.json();
@@ -135,11 +131,24 @@ export default function Payments() {
     // resolvemos la promesa de stripe
     const stripe = await stripePromise;
 
-    // llamada a la funcion de stripe para redirigir al cliente a la pasarela de pago
     try {
-      await stripe.redirectToCheckout({
-        sessionId: sessionId,
-      });
+      // Si no hay errores en los datos del cliente y del precio, redireccionamos al cliente a la pasarela de pago
+      if (!customerErrors && !priceErrors) {
+        const alert = await Swal.fire({
+          title: "Datos del formulario correctos",
+          text: "Se te redireccionara a la pasarela de pago si pulsas en el boton de confirmar",
+          icon: "success",
+          confirmButtonText: "Si",
+          denyButtonText: "No",
+          showDenyButton: true,
+          showConfirmButton: true,
+        });
+        if (alert.isConfirmed) {
+          await stripe.redirectToCheckout({
+            sessionId: sessionId,
+          });
+        }
+      }
     } catch (error) {
       Swal.fire({
         title: "Imposible redireccionar a la pasarela de pago",
@@ -154,7 +163,6 @@ export default function Payments() {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md p-8 m-4 bg-white rounded shadow-md">
         <form onSubmit={(e) => handleSubmit(e)}>
-          {/* llamada a la funcion que se encargara de hacer el login a la API*/}
           <div className="mb-4">
             <label
               htmlFor="Nombre de usuario"
@@ -171,9 +179,7 @@ export default function Payments() {
               onChange={(e) => onInputChange(e)} // llamada a la funcion que se encargara de actualizar el estado de la entidad
             />
             {/* validacion del campo del formulario */}
-            {errors && (
-              <p className="text-red-500 text-xs italic">{errors}</p>
-            )}
+            {errors && <p className="text-red-500 text-xs italic">{errors}</p>}
           </div>
           <div className="mb-4">
             <label
@@ -190,9 +196,7 @@ export default function Payments() {
               value={last_name} // valor del atributo de la entidad del backend
               onChange={(e) => onInputChange(e)} // llamada a la funcion que se encargara de actualizar el estado de la entidad
             />
-            {errors && (
-              <p className="text-red-500 text-xs italic">{errors}</p>
-            )}
+            {errors && <p className="text-red-500 text-xs italic">{errors}</p>}
           </div>
           <div className="mb-4">
             <label
@@ -209,9 +213,7 @@ export default function Payments() {
               value={username} // valor del atributo de la entidad del backend
               onChange={(e) => onInputChange(e)} // llamada a la funcion que se encargara de actualizar el estado de la entidad
             />
-            {errors && (
-              <p className="text-red-500 text-xs italic">{errors}</p>
-            )}
+            {errors && <p className="text-red-500 text-xs italic">{errors}</p>}
           </div>
           <div className="mb-4">
             <label
@@ -228,9 +230,7 @@ export default function Payments() {
               value={email} // valor del atributo de la entidad del backend
               onChange={(e) => onInputChange(e)} // llamada a la funcion que se encargara de actualizar el estado de la entidad
             />
-            {errors && (
-              <p className="text-red-500 text-xs italic">{errors}</p>
-            )}
+            {errors && <p className="text-red-500 text-xs italic">{errors}</p>}
           </div>
           <div className="mb-4">
             <label
@@ -247,9 +247,7 @@ export default function Payments() {
               value={phone} // valor del atributo de la entidad del backend
               onChange={(e) => onInputChange(e)} // llamada a la funcion que se encargara de actualizar el estado de la entidad
             />
-            {errors && (
-              <p className="text-red-500 text-xs italic">{errors}</p>
-            )}
+            {errors && <p className="text-red-500 text-xs italic">{errors}</p>}
           </div>
           <div className="mb-4">
             <label
@@ -278,7 +276,7 @@ export default function Payments() {
               type="submit"
               className="w-auto px-2 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700 focus:outline-none focus:shadow-outline"
             >
-              Confirmar pago
+              Redireccionar a la pasarela de pago
             </button>
             <Link
               className="w-auto px-1 py-3 font-bold text-white bg-red-500 rounded hover:bg-red-700 focus:outline-none focus:shadow-outline"

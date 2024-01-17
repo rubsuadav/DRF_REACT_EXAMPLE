@@ -134,7 +134,8 @@ class StripeCheckoutSession(APIView):
                 # SE DEBE DE CAMBIAR OBLIGATORIAMENTE EL MODO DE PAGO A "subscription", XQ SINO NO FUNCIONA!!!!
 
                 # url de exito (atrib obligatorio)
-                success_url="http://localhost:3000/success",
+                success_url=request.data.get(
+                    'success_url', "https://example.com/success"),
             )
             return Response(status=status.HTTP_201_CREATED, data={"id de la sesion": session.id})
         except ValidationError as e:

@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Payments from "./components/Payments";
+import SuccesPayment from "./components/SuccesPayment";
 
 // local pages imports
 import Home from "./pages/Home";
@@ -57,6 +58,7 @@ export default function App() {
               <Route path="/register" element={<Register />} />
               {/* Payments */}
               <Route path="/payments" element={<Payments />} />
+              <Route path="/payment/success" element={<SuccesPayment />} />
             </Route>
           </Routes>
           <Footer />
