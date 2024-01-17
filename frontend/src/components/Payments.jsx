@@ -53,7 +53,7 @@ export default function Payments() {
     e.preventDefault();
     // POST: parametros: name, last_name, email, username, phone
     const customerResponse = await fetch(
-      "http://127.0.0.1:8000/api/customer/",
+      "https://mario.pythonanywhere.com/api/customer/",
       {
         method: "POST",
         headers: {
@@ -84,7 +84,7 @@ export default function Payments() {
       return;
     }
 
-    const priceResponse = await fetch("http://127.0.0.1:8000/api/price/", {
+    const priceResponse = await fetch("https://mario.pythonanywhere.com/api/price/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -107,7 +107,7 @@ export default function Payments() {
     }
 
     // POST: parametros: customer_id, price_id
-    const paymentResponse = await fetch("http://127.0.0.1:8000/api/checkout/", {
+    const paymentResponse = await fetch("https://mario.pythonanywhere.com/api/checkout/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
