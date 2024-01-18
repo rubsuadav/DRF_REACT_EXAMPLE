@@ -2,16 +2,26 @@ from .serializers import TaskSerializer, ProjectSerializer
 from .models import Task, Project
 
 from rest_framework import viewsets, permissions
+from rest_framework import status
 
 # pasarela de pago
 import stripe
-# from stripe._error import CardError
 from rest_framework.views import APIView
-from rest_framework import status
 from rest_framework.response import Response
 from .validators import *
 from rest_framework.exceptions import ValidationError
 from stripe._error import InvalidRequestError
+
+# envio de emails
+from django.core.mail import EmailMultiAlternatives
+from django.utils.text import slugify
+from django.core.files.base import ContentFile
+from unidecode import unidecode
+from django.utils.encoding import smart_str
+try:
+    from local_settings import *
+except ImportError:
+    pass
 
 
 class Taskview(viewsets.ModelViewSet):
@@ -31,7 +41,10 @@ class ProjectView(viewsets.ModelViewSet):
 
 # Pasarela de pago ##########################################
 # 1) inicializamos stripe mediante la clave secreta
-stripe.api_key = 'sk_test_51N4BMaGgNDimUjxYRFP0Twid035y7vZvtrZTuL6nTSvwoOcdBgwSHVM2nRPULeAlCoAXMxWGBsxWDmrA2NN8s6yT00MPkWmoIv'
+try:
+    stripe.api_key = STRIPE_SECRET_KEY
+except NameError:
+    pass
 
 
 # 2) creamos el cliente
@@ -70,7 +83,7 @@ class StripePrice(APIView):
     def post(self, request, *args, **kwargs):
         try:
             # obtenemos el precio del objeto a pagar de la solicitud (atrib OBLIGATORIO!!!!)
-            price_value = int(request.data['price_value'])
+            price_value = float(request.data['price_value'])
 
             price = stripe.Price.create(
                 # divisa en la que se va a pagar, ver (https://stripe.com/docs/currencies) para todas las divisas posibles
@@ -81,7 +94,7 @@ class StripePrice(APIView):
                 },
                 # precio del producto, por def viene en centimos!!!! (atrib obligatorio!!!!)
                 # price_value se considera en euros!!!
-                unit_amount=price_value*100,
+                unit_amount=int(round(price_value*100)),
 
                 # intervalo de pago para implementar pagos recurrentes (atrib opcional) (USADO PARA SUBCRIPCIONES!!!!!)
                 # recurring={
@@ -139,5 +152,58 @@ class StripeCheckoutSession(APIView):
             return Response(status=status.HTTP_201_CREATED, data={"id de la sesion": session.id})
         except ValidationError as e:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={"error": str(e.detail[0])})
+        except KeyError:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data={"error": "No se han enviado todos los datos."})
+
+
+# Envio de emails ##########################################
+def send_notification(recipients, subject, message, attached_file=None):
+    # Convertimos los datos a cadenas de texto usando smart_str
+    recipients = [smart_str(recipients)
+                  for recipients in recipients]  # destinatarios
+    subject = smart_str(subject)  # asunto
+    message = smart_str(message)  # mensaje
+
+    # Eliminamos cualquier caracter no ASCII usando unidecode
+    recipients = [unidecode(recipients) for recipients in recipients]
+    subject = unidecode(subject)
+    message = unidecode(message)
+
+    # Creamos el email con los datos
+    email = EmailMultiAlternatives(
+        subject=subject,
+        body=message,
+        to=recipients,
+        from_email=unidecode(EMAIL_HOST_USER)
+    )
+
+    if attached_file:
+        file_name = slugify(attached_file.name)
+        file_content = ContentFile(attached_file.read().decode('latin-1'))
+        email.attach(file_name, file_content.read(),
+                     attached_file.content_type)
+
+    try:
+        email.send(fail_silently=False)
+    except Exception as e:
+        raise e
+
+
+class NotificationView(APIView):
+    # permission_classes = [permissions.IsAdminUser]
+    def post(self, request, *args, **kwargs):
+        try:
+            recipients = request.data['recipients'].split(' ')
+            subject = request.data['subject']
+            message = request.data['message']
+            file = request.FILES.get('file')
+            try:
+                send_notification(
+                    recipients, subject, message, file)
+                datos = {'message': "Enviando notificación..."}
+                return Response(data=datos, status=status.HTTP_201_CREATED)
+            except Exception:
+                datos = {'error': "Credenciales del servidor SMTP inválidas."}
+                return Response(data=datos, status=status.HTTP_401_UNAUTHORIZED)
         except KeyError:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data={"error": "No se han enviado todos los datos."})
