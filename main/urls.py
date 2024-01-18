@@ -5,7 +5,7 @@ from .views import Taskview, ProjectView
 from rest_framework.documentation import include_docs_urls
 
 # pasarela de pago
-from .views import StripeCustomer, StripeCheckoutSession, StripePrice, NotificationView
+from .views import StripeCustomer, StripeCheckoutSession, StripePrice, NotificationView, StripeInvoice
 
 
 router = routers.DefaultRouter()
@@ -25,6 +25,7 @@ urlpatterns = [
     path("api/customer/", StripeCustomer.as_view()),
     path("api/price/", StripePrice.as_view()),
     path("api/checkout/", StripeCheckoutSession.as_view()),
+    path("api/invoice/<str:customer_id>/", StripeInvoice.as_view()),
     # Envio de emails ###########################################
     path("api/notification/", NotificationView.as_view()),
 ]

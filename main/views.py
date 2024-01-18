@@ -138,6 +138,8 @@ class StripeCheckoutSession(APIView):
                     "price": price_id,  # id del precio del producto
                 }],
                 mode="payment",  # modo de pago
+                # factura de confirmacion del pago (opcional ==> se puede quitar)
+                invoice_creation={"enabled": True},
                 # (se puede cambiar a subscription para pagos recurrentes agregando "subscription" en vez de "payment"
                 # SI EL PRICE_ID ES DE UN PRECIO RECURRENTE, ES DECIR, DE UNA SUBCRIPCION, es decir, tiene este atrib:
                 # recurring={
@@ -152,6 +154,21 @@ class StripeCheckoutSession(APIView):
             return Response(status=status.HTTP_201_CREATED, data={"id de la sesion": session.id})
         except ValidationError as e:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={"error": str(e.detail[0])})
+        except KeyError:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data={"error": "No se han enviado todos los datos."})
+
+
+#### RECIBO DE PAGO ####
+class StripeInvoice(APIView):
+    def get(self, request, customer_id, *args, **kwargs):
+        try:
+            invoice = stripe.Invoice.list(customer=customer_id)
+            invoice_data = invoice.data
+            if len(invoice_data) == 0:
+                return Response(status=status.HTTP_200_OK, data={"info": "No se ha registrado ninguna factura."})
+            return Response(status=status.HTTP_200_OK, data={"url de la factura": invoice_data[0].hosted_invoice_url})
+        except InvalidRequestError:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=str("No se ha encontrado el cliente"))
         except KeyError:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data={"error": "No se han enviado todos los datos."})
 
