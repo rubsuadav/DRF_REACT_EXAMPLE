@@ -54,8 +54,10 @@ export default function App() {
               {/* EDITAR PROYECTO */}
               <Route path="/editproject/:id" element={<EditProject />} />
               {/* Login and register */}
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
+              <Route path="" element={<PrivateRoute />}>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+              </Route>
               {/* Payments */}
               <Route path="/payments" element={<Payments />} />
               <Route path="/payment/success" element={<SuccesPayment />} />
