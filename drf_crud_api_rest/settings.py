@@ -158,3 +158,23 @@ CORS_ALLOW_ALL_ORIGINS = True
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
 }
+
+
+# Importing local settings
+try:
+    from local_settings import *
+except ImportError:
+    print(
+        "local_settings.py no se encuentra. Debes de crearlo para poder utilizar las funcionalidades de pasarela de pago y envio de emails. \n \
+        Esta configuración es la que debes de incluir: \n \t \f \
+            EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' \n \t \
+                EMAIL_HOST = 'smtp.gmail.com' \n \t \
+                    EMAIL_PORT = 587 \n \t \
+                        EMAIL_HOST_USER = 'tucorreoelectronicodegmail' \n \t \
+                            EMAIL_HOST_PASSWORD = 'tucontraseñageneradaporlaaplicaciondeterceroshabilitada' \n \t \
+                                EMAIL_USE_TLS = True \n \t \f \
+        No olvides reemplazar EMAIL_HOST_USER por tu email y EMAIL_HOST_PASSWORD por la contraseña generada por la aplicación de terceros. \n \t \f \
+        Para la pasarela de pago debes de incluir: \n \t \f \
+            STRIPE_SECRET_KEY = 'tuclaveprivada' \n \t \
+        No olvides reemplazar STRIPE_SECRET_KEY por tu clave privada. \n \t \f"
+    )
