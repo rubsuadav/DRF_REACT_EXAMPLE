@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Task, Project
+from .models import Task, Project, Products
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -12,4 +12,10 @@ class TaskSerializer(serializers.ModelSerializer):
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
+        fields = '__all__'
+
+
+class ProductsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Products
         fields = '__all__'

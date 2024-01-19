@@ -1,7 +1,7 @@
-from .serializers import TaskSerializer, ProjectSerializer
-from .models import Task, Project
+from .serializers import TaskSerializer, ProjectSerializer, ProductsSerializer
+from .models import Task, Project, Products
 
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, mixins
 from rest_framework import status
 
 # pasarela de pago
@@ -40,6 +40,14 @@ class ProjectView(viewsets.ModelViewSet):
 
 
 # Pasarela de pago ##########################################
+# 0) lista de productos y detalles de productos
+class ProductsView(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    serializer_class = ProductsSerializer
+    queryset = Products.objects.all()
+    # Sobrescribes los permisos que se configuran en el settings.py pa q funcione la lib
+    permission_classes = [permissions.AllowAny]
+
+
 # 1) inicializamos stripe mediante la clave secreta
 try:
     stripe.api_key = STRIPE_SECRET_KEY
@@ -80,21 +88,25 @@ class StripeCustomer(APIView):
 
 # 3) creamos el metodo que nos crea el precio del objeto a pagar
 class StripePrice(APIView):
-    def post(self, request, *args, **kwargs):
+    def post(self, request, product_id, *args, **kwargs):
         try:
-            # obtenemos el precio del objeto a pagar de la solicitud (atrib OBLIGATORIO!!!!)
-            price_value = float(request.data['price_value'])
+            # buscamos el producto en la base de datos
+            product = Products.objects.get(id=product_id)
+
+            # Creamos el producto en stripe a partir del producto de la base de datos
+            stripe_product = stripe.Product.create(
+                name=product.name,
+                images=[product.image]
+            )
 
             price = stripe.Price.create(
                 # divisa en la que se va a pagar, ver (https://stripe.com/docs/currencies) para todas las divisas posibles
                 currency="eur",  # Atributo obligatorio
-                product_data={
-                    # nombre del producto (atrib obligatorio), CAMBIARLO POR VUESTRO NOMBRE QUE QUERAIS PONER AL PRODUCTO!!!
-                    "name": "Nombre de ejemplo"
-                },
+                # id del producto (atrib obligatorio)
+                product=stripe_product.id,
                 # precio del producto, por def viene en centimos!!!! (atrib obligatorio!!!!)
                 # price_value se considera en euros!!!
-                unit_amount=int(round(price_value*100)),
+                unit_amount=int(round(product.price*100)),
 
                 # intervalo de pago para implementar pagos recurrentes (atrib opcional) (USADO PARA SUBCRIPCIONES!!!!!)
                 # recurring={
@@ -103,6 +115,8 @@ class StripePrice(APIView):
                 # } // DESCOMENTAR EN CASO DE IMPLEMENTAR PAGOS RECURRENTES MEDIANTE SUBCRIPCIONES!!!!
             )
             return Response(status=status.HTTP_201_CREATED, data={"id del precio": price.id})
+        except Products.DoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={"error": "Producto no encontrado"})
         except ValueError:
             return Response(status=status.HTTP_400_BAD_REQUEST, data=str("El precio debe ser un número"))
         except InvalidRequestError:
