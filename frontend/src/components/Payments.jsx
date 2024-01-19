@@ -1,12 +1,6 @@
 import React, { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { loadStripe } from "@stripe/stripe-js";
 import Swal from "sweetalert2";
-
-// cargar la clave publica de stripe
-const stripePromise = loadStripe(
-  "pk_test_51N4BMaGgNDimUjxY3aZ4eFC8osFpmDa0h9SXRzfHSJLmrTzXZvG8HbmRVXgR8m97vMU80ObFAuOSFfZr2ZOWxVft00NNHuk0Ue"
-);
 
 export default function Payments() {
   // 1) estado inicial para recoger los datos del cliente
@@ -77,24 +71,6 @@ export default function Payments() {
       }
     );
     const priceData = await priceResponse.json();
-
-    // POST: parametros: customer_id, price_id
-    const paymentResponse = await fetch("http://127.0.0.1:8000/api/checkout/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        customer_id: customerData["id del cliente"],
-        price_id: priceData["id del precio"],
-        success_url: "http://localhost:5173/payment/success",
-      }),
-    });
-    const paymentData = await paymentResponse.json();
-
-    // resolvemos la promesa de stripe
-    const stripe = await stripePromise;
-
     try {
       // Si no hay errores en los datos del cliente y del precio, redireccionamos al cliente a la pasarela de pago
       if (!customerErrors) {
@@ -108,9 +84,23 @@ export default function Payments() {
           showConfirmButton: true,
         });
         if (alert.isConfirmed) {
-          await stripe.redirectToCheckout({
-            sessionId: paymentData["id de la sesion"],
-          });
+          // POST: parametros: customer_id, price_id
+          const checkoutReponse = await fetch(
+            "http://127.0.0.1:8000/api/checkout/",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                customer_id: customerData["id del cliente"],
+                price_id: priceData["id del precio"],
+                success_url: "http://localhost:5173/payment/success",
+              }),
+            }
+          );
+          const checkoutData = await checkoutReponse.json();
+          window.location.href = checkoutData["url de la sesion"];
         }
       }
     } catch (error) {

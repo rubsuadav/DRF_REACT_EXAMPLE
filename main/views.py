@@ -165,7 +165,7 @@ class StripeCheckoutSession(APIView):
                 success_url=request.data.get(
                     'success_url', "https://example.com/success"),
             )
-            return Response(status=status.HTTP_201_CREATED, data={"id de la sesion": session.id})
+            return Response(status=status.HTTP_201_CREATED, data={"url de la sesion": session.url})
         except ValidationError as e:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={"error": str(e.detail[0])})
         except KeyError:
