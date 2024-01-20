@@ -4,6 +4,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 // local layout imports
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import Payments from "./components/Payments";
+import SuccesPayment from "./components/SuccesPayment";
 
 // local pages imports
 import Home from "./pages/Home";
@@ -16,7 +18,7 @@ import ProjectDetails from "./pages/ProjectDetails";
 import CreateProject from "./pages/CreateProject";
 import EditProject from "./pages/EditProject";
 import Login from "./pages/auth/Login";
-import Register from "./pages/auth/Register"
+import Register from "./pages/auth/Register";
 
 // Authentication and routes
 import { AuthContextProvider } from "./context/authContext";
@@ -52,8 +54,16 @@ export default function App() {
               {/* EDITAR PROYECTO */}
               <Route path="/editproject/:id" element={<EditProject />} />
               {/* Login and register */}
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
+              <Route path="" element={<PrivateRoute />}>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+              </Route>
+              {/* Payments */}
+              <Route
+                path="/payments/:subscriptionName/:subscriptionPrice"
+                element={<Payments />}
+              />
+              <Route path="/payment/success" element={<SuccesPayment />} />
             </Route>
           </Routes>
           <Footer />

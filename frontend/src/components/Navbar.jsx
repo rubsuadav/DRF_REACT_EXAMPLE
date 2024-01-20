@@ -62,8 +62,9 @@ export default function Navbar() {
           <Link to={"/projects"} className="mr-5 hover:text-gray-900">
             Proyectos
           </Link>
-          <a className="mr-5 hover:text-gray-900">Third Link</a>
-          <a className="mr-5 hover:text-gray-900">Fourth Link</a>
+          <Link to={"/payments"} className="mr-5 hover:text-gray-900">
+            Pasarela de pagos
+          </Link>
         </nav>
         {!isAuthenticated && (
           <>
@@ -86,7 +87,7 @@ export default function Navbar() {
             </Link>
             <Link
               to={"/login"}
-              className="inline-flex items-center bg-gray-100 border-0 py-1 px-3 focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0 text-black"
+              className="inline-flex items-center bg-gray-100 border-0 py-1 px-3 focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0 text-black ml-5"
             >
               Iniciar Sesion
               <svg
