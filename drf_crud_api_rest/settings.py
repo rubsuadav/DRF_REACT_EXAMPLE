@@ -157,3 +157,13 @@ CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
 }
+
+
+# local settings
+try:
+    from local_settings import *
+except ImportError:
+    print("local_settings.py no se encuentra. Debes de crearlo para poder utilizar las funcionalidades de pasarela de pago \n \t \f \
+        Para la pasarela de pago debes de incluir: \n \t \f \
+            STRIPE_SECRET_KEY = 'tuclaveprivada' \n \t \
+        No olvides reemplazar STRIPE_SECRET_KEY por tu clave privada. \n \t \f")

@@ -3,3 +3,4 @@ django-cors-headers==4.3.1 # para permitir peticiones desde el frontend
 djangorestframework==3.14.0
 coreapi==2.3.3 # para documentar la API de manera automática
 djoser == 2.2.2 # para autenticación de usuarios
+stripe == 7.12.0 # para pagos

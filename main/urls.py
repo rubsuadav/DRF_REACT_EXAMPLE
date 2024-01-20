@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework import routers
-from .views import Taskview, ProjectView
+from .views import Taskview, ProjectView, StripeCustomer, StripePrice, StripeCheckoutView
 # para documentar la API de manera automática
 from rest_framework.documentation import include_docs_urls
 
@@ -17,4 +17,8 @@ urlpatterns = [
     # para documentar la API de manera automática
     path("", include_docs_urls(
         title="Complete API REST FULL including authentication")),
+    # PASARELA DE PAGO
+    path("api/customer/", StripeCustomer.as_view()),
+    path("api/price/", StripePrice.as_view()),
+    path("api/checkout/", StripeCheckoutView.as_view())
 ]
