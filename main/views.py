@@ -126,8 +126,6 @@ class StripeCheckoutSession(APIView):
             # obtenemos el precio de la subscripcion a pagar de la solicitud (atrib OBLIGATORIO)
             price_id = request.data['price_id']
 
-            validate_checkout_session(customer_id, price_id)
-
             session = stripe.checkout.Session.create(
                 currency="eur",  # divisa en la que se va a pagar
                 customer=customer_id,  # id del cliente (atrib obligatorio)
