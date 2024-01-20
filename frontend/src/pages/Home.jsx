@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 export default function Home() {
   const subcriptions = [
@@ -29,7 +30,7 @@ export default function Home() {
         "Tumeric plaid portland",
         "Mixtape chillwave tumeric",
         "Hexagon neutra unicorn",
-        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatem commodi officiis cumque",
+        "Lorem ipsum dolor sit amet",
       ],
     },
   ];
@@ -43,7 +44,7 @@ export default function Home() {
         </div>
         <div className="flex flex-wrap -m-4">
           {subcriptions.map((subcription, index) => (
-            <div key={index} className="p-4 xl:w-1/4 md:w-1/2 w-full">
+            <div key={index} className="p-4 xl:w-1/3 md:w-1/2 w-full">
               <div className="h-full p-6 rounded-lg border-2 border-gray-300 flex flex-col relative overflow-hidden">
                 <h2 className="text-sm tracking-widest title-font mb-1 font-medium">
                   {subcription.name.toUpperCase()}
@@ -57,7 +58,10 @@ export default function Home() {
                   </span>
                 )}
                 {subcription.descriptions.map((s, index) => (
-                  <p key={index} className="flex items-center text-gray-600 mb-2">
+                  <p
+                    key={index}
+                    className="flex items-center text-gray-600 mb-2"
+                  >
                     <span className="w-4 h-4 mr-2 inline-flex items-center justify-center bg-gray-400 text-white rounded-full flex-shrink-0">
                       <svg
                         fill="none"
@@ -74,8 +78,15 @@ export default function Home() {
                     {s}
                   </p>
                 ))}
-                <button className="flex items-center mt-auto text-white bg-gray-400 border-0 py-2 px-4 w-full focus:outline-none hover:bg-gray-500 rounded">
-                  Button
+                <Link
+                  to={`/payments/${subcription.name}/${subcription.price}`}
+                  className={`flex items-center mt-auto  border-0 py-2 px-4 w-full focus:outline-nonerounded ${
+                    subcription.name == "standar"
+                      ? "bg-indigo-400 text-white hover:bg-indigo-600"
+                      : "text-white bg-gray-400 hover:bg-gray-500"
+                  }`}
+                >
+                  Suscribirse
                   <svg
                     fill="none"
                     stroke="currentColor"
@@ -87,9 +98,12 @@ export default function Home() {
                   >
                     <path d="M5 12h14M12 5l7 7-7 7"></path>
                   </svg>
-                </button>
+                </Link>
                 <p className="text-xs text-gray-500 mt-3">
-                  Literally you probably haven't heard of them jean shorts.
+                  Todas las caracteristicas de la version{" "}
+                  <span className="text-red-700 text-sm">
+                    {subcription.name.toUpperCase()}
+                  </span>
                 </p>
               </div>
             </div>

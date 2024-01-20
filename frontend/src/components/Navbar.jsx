@@ -62,9 +62,6 @@ export default function Navbar() {
           <Link to={"/projects"} className="mr-5 hover:text-gray-900">
             Proyectos
           </Link>
-          <Link to={"/payments"} className="mr-5 hover:text-gray-900">
-            Pasarela de pagos
-          </Link>
         </nav>
         {!isAuthenticated && (
           <>
