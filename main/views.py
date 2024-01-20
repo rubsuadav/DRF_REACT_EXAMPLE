@@ -1,7 +1,7 @@
-from .serializers import TaskSerializer, ProjectSerializer, ProductsSerializer
-from .models import Task, Project, Products
+from .serializers import TaskSerializer, ProjectSerializer
+from .models import Task, Project
 
-from rest_framework import viewsets, permissions, mixins
+from rest_framework import viewsets, permissions
 from rest_framework import status
 
 # pasarela de pago
@@ -40,14 +40,6 @@ class ProjectView(viewsets.ModelViewSet):
 
 
 # Pasarela de pago ##########################################
-# 0) lista de productos y detalles de productos
-class ProductsView(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
-    serializer_class = ProductsSerializer
-    queryset = Products.objects.all()
-    # Sobrescribes los permisos que se configuran en el settings.py pa q funcione la lib
-    permission_classes = [permissions.AllowAny]
-
-
 # 1) inicializamos stripe mediante la clave secreta
 try:
     stripe.api_key = STRIPE_SECRET_KEY
@@ -88,15 +80,12 @@ class StripeCustomer(APIView):
 
 # 3) creamos el metodo que nos crea el precio del objeto a pagar
 class StripePrice(APIView):
-    def post(self, request, product_id, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         try:
-            # buscamos el producto en la base de datos
-            product = Products.objects.get(id=product_id)
-
             # Creamos el producto en stripe a partir del producto de la base de datos
             stripe_product = stripe.Product.create(
-                name=product.name,
-                images=[product.image]
+                # nombre del producto (atrib obligatorio)
+                name=request.data['name'],
             )
 
             price = stripe.Price.create(
@@ -106,17 +95,19 @@ class StripePrice(APIView):
                 product=stripe_product.id,
                 # precio del producto, por def viene en centimos!!!! (atrib obligatorio!!!!)
                 # price_value se considera en euros!!!
-                unit_amount=int(round(product.price*100)),
+                unit_amount=int(round(int(request.data["price"])*100)),
 
-                # intervalo de pago para implementar pagos recurrentes (atrib opcional) (USADO PARA SUBCRIPCIONES!!!!!)
-                # recurring={
-                #    # intervalo de pago (atrib opcional), se puede quitar o cambiar a "day" o "year" o "week"
-                #    "interval": "month"
-                # } // DESCOMENTAR EN CASO DE IMPLEMENTAR PAGOS RECURRENTES MEDIANTE SUBCRIPCIONES!!!!
+                # atributo necesario para implementar la suscripcion
+                recurring={
+                    # intervalo de pago (atrib obligatorio)
+                    "interval": "month",
+                    # periodo de prueba (atrib opcional)
+                    "trial_period_days": 30,
+                    "interval_count": 1  # número de intervalos entre las facturaciones de la suscripción
+                }
+                # como interval ==> month, el precio se cobrará cada mes
             )
             return Response(status=status.HTTP_201_CREATED, data={"id del precio": price.id})
-        except Products.DoesNotExist:
-            return Response(status=status.HTTP_400_BAD_REQUEST, data={"error": "Producto no encontrado"})
         except ValueError:
             return Response(status=status.HTTP_400_BAD_REQUEST, data=str("El precio debe ser un número"))
         except InvalidRequestError:
@@ -132,35 +123,21 @@ class StripeCheckoutSession(APIView):
             # obtenemos el id del cliente desde los datos de la solicitud (atrib OBLIGATORIO)
             customer_id = request.data['customer_id']
 
-            # obtenemos la cantidad de objetos a pagar de la solicitud (atrib OPCIONAL)
-            # En el caso de que tengais varios items a pagar, x ejemplo varios PCs, etc (es decir, objetos tangibles))
-            # quantity = request.data['quantity']
-
-            # obtenemos el precio del objeto a pagar de la solicitud (atrib OBLIGATORIO)
+            # obtenemos el precio de la subscripcion a pagar de la solicitud (atrib OBLIGATORIO)
             price_id = request.data['price_id']
 
-            # validamos los datos (por defecto la cantidad es 1)
-            # cambiar la cantidad si se quiere y poner "quantity" en vez de 1
-            validate_checkout_session(customer_id, 1, price_id)
+            validate_checkout_session(customer_id, price_id)
 
             session = stripe.checkout.Session.create(
                 currency="eur",  # divisa en la que se va a pagar
                 customer=customer_id,  # id del cliente (atrib obligatorio)
                 line_items=[{
-                    # cantidad de objetos a pagar (opcional ==> se puede quitar o poner "quantity" en vez de 1 si se quiere cambiar)
-                    "quantity": 1,
-                    "price": price_id,  # id del precio del producto
+                    # id del precio del producto (atrib obligatorio)
+                    "price": price_id,
+                    # cantidad de productos a pagar (atrib obligatorio)
+                    "quantity": 1
                 }],
-                mode="payment",  # modo de pago
-                # factura de confirmacion del pago (opcional ==> se puede quitar)
-                invoice_creation={"enabled": True},
-                # (se puede cambiar a subscription para pagos recurrentes agregando "subscription" en vez de "payment"
-                # SI EL PRICE_ID ES DE UN PRECIO RECURRENTE, ES DECIR, DE UNA SUBCRIPCION, es decir, tiene este atrib:
-                # recurring={
-                #    "interval": "month"
-                # } )
-                # SE DEBE DE CAMBIAR OBLIGATORIAMENTE EL MODO DE PAGO A "subscription", XQ SINO NO FUNCIONA!!!!
-
+                mode="subscription",  # modo de pago (atrib obligatorio)
                 # url de exito (atrib obligatorio)
                 success_url=request.data.get(
                     'success_url', "https://example.com/success"),
@@ -168,21 +145,6 @@ class StripeCheckoutSession(APIView):
             return Response(status=status.HTTP_201_CREATED, data={"url de la sesion": session.url})
         except ValidationError as e:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={"error": str(e.detail[0])})
-        except KeyError:
-            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data={"error": "No se han enviado todos los datos."})
-
-
-#### RECIBO DE PAGO ####
-class StripeInvoice(APIView):
-    def get(self, request, customer_id, *args, **kwargs):
-        try:
-            invoice = stripe.Invoice.list(customer=customer_id)
-            invoice_data = invoice.data
-            if len(invoice_data) == 0:
-                return Response(status=status.HTTP_200_OK, data={"info": "No se ha registrado ninguna factura."})
-            return Response(status=status.HTTP_200_OK, data={"url de la factura": invoice_data[0].hosted_invoice_url})
-        except InvalidRequestError:
-            return Response(status=status.HTTP_400_BAD_REQUEST, data=str("No se ha encontrado el cliente"))
         except KeyError:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data={"error": "No se han enviado todos los datos."})
 

@@ -23,12 +23,9 @@ def validate_customer(name, last_name, email, username, phone):
         raise ValidationError(errors)
 
 
-def validate_checkout_session(customer_id, quantity, price_id):
+def validate_checkout_session(customer_id, price_id):
     if not customer_id:
         raise ValidationError("El id del cliente es obligatorio.")
 
     if not price_id:
         raise ValidationError("El id del precio es obligatorio.")
-
-    if quantity and quantity < 1:
-        raise ValidationError("La cantidad debe ser mayor que 0.")

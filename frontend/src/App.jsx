@@ -24,7 +24,6 @@ import Register from "./pages/auth/Register";
 import { AuthContextProvider } from "./context/authContext";
 import PublicRoute from "./context/routes/PublicRoute";
 import PrivateRoute from "./context/routes/PrivateRoute";
-import Products from "./pages/Products";
 
 export default function App() {
   return (
@@ -60,8 +59,10 @@ export default function App() {
                 <Route path="/register" element={<Register />} />
               </Route>
               {/* Payments */}
-              <Route path="/products" element={<Products />} />
-              <Route path="/payments/:product_id" element={<Payments />} />
+              <Route
+                path="/payments/:subscriptionName/:subscriptionPrice"
+                element={<Payments />}
+              />
               <Route path="/payment/success" element={<SuccesPayment />} />
             </Route>
           </Routes>

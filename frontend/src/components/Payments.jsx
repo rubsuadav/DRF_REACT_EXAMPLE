@@ -12,11 +12,10 @@ export default function Payments() {
     phone: "",
   });
 
+  const { subscriptionName, subscriptionPrice } = useParams();
+
   // 2) estado inicial para recoger los errores del formulario del cliente
   const [errors, setErrors] = useState({});
-
-  // 2.1) pillo el id del producto mediante el de la url
-  const { product_id } = useParams();
 
   // 3) instancias de los atrib del form para recoger los datos del cliente
   const { name, last_name, email, username, phone } = form;
@@ -44,9 +43,6 @@ export default function Payments() {
     );
     const customerData = await customerResponse.json();
 
-    // PARA RECIBO DE FACTURA (OPCIONAL) //
-    localStorage.setItem("customer_id", customerData["id del cliente"]);
-
     // 6.1) validamos los campos del form para recoger los datos del cliente
     let customerErrors = null;
     switch (customerResponse.status) {
@@ -61,15 +57,17 @@ export default function Payments() {
     }
 
     // 6.2) pillo el id del precio mediante el del producto
-    const priceResponse = await fetch(
-      `http://127.0.0.1:8000/api/price/${product_id}/`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const priceResponse = await fetch("http://127.0.0.1:8000/api/price/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: subscriptionName,
+        price: subscriptionPrice,
+
+      }),
+    });
     const priceData = await priceResponse.json();
     try {
       // Si no hay errores en los datos del cliente y del precio, redireccionamos al cliente a la pasarela de pago
