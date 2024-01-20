@@ -43,7 +43,7 @@ export default function Home() {
         </div>
         <div className="flex flex-wrap -m-4">
           {subcriptions.map((subcription, index) => (
-            <div className="p-4 xl:w-1/4 md:w-1/2 w-full">
+            <div key={index} className="p-4 xl:w-1/4 md:w-1/2 w-full">
               <div className="h-full p-6 rounded-lg border-2 border-gray-300 flex flex-col relative overflow-hidden">
                 <h2 className="text-sm tracking-widest title-font mb-1 font-medium">
                   {subcription.name.toUpperCase()}
@@ -56,15 +56,15 @@ export default function Home() {
                     POPULAR
                   </span>
                 )}
-                {subcription.descriptions.map((s) => (
-                  <p className="flex items-center text-gray-600 mb-2">
+                {subcription.descriptions.map((s, index) => (
+                  <p key={index} className="flex items-center text-gray-600 mb-2">
                     <span className="w-4 h-4 mr-2 inline-flex items-center justify-center bg-gray-400 text-white rounded-full flex-shrink-0">
                       <svg
                         fill="none"
                         stroke="currentColor"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2.5"
                         className="w-3 h-3"
                         viewBox="0 0 24 24"
                       >
@@ -79,9 +79,9 @@ export default function Home() {
                   <svg
                     fill="none"
                     stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
                     className="w-4 h-4 ml-auto"
                     viewBox="0 0 24 24"
                   >

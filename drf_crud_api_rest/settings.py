@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-y_uz!5v^wwsjeujo@8qh4769$=_f4s2io(ndj%k-4v61o-(5g3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -142,6 +142,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = "/home/mario/DRF_REACT_EXAMPLE/drf_crud_api_rest"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -150,7 +151,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # CORS CONFIGURATION PARA CONECTAR FRONT CON BACK
-CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]
+CORS_ALLOW_ALL_ORIGINS = True
 
 
 # PARA DOCUMENTAR API DE MANERA AUTOMÁTICA
@@ -159,11 +160,21 @@ REST_FRAMEWORK = {
 }
 
 
-# local settings
+# Importing local settings
 try:
     from local_settings import *
 except ImportError:
-    print("local_settings.py no se encuentra. Debes de crearlo para poder utilizar las funcionalidades de pasarela de pago \n \t \f \
+    print(
+        "local_settings.py no se encuentra. Debes de crearlo para poder utilizar las funcionalidades de pasarela de pago y envio de emails. \n \
+        Esta configuración es la que debes de incluir: \n \t \f \
+            EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' \n \t \
+                EMAIL_HOST = 'smtp.gmail.com' \n \t \
+                    EMAIL_PORT = 587 \n \t \
+                        EMAIL_HOST_USER = 'tucorreoelectronicodegmail' \n \t \
+                            EMAIL_HOST_PASSWORD = 'tucontraseñageneradaporlaaplicaciondeterceroshabilitada' \n \t \
+                                EMAIL_USE_TLS = True \n \t \f \
+        No olvides reemplazar EMAIL_HOST_USER por tu email y EMAIL_HOST_PASSWORD por la contraseña generada por la aplicación de terceros. \n \t \f \
         Para la pasarela de pago debes de incluir: \n \t \f \
             STRIPE_SECRET_KEY = 'tuclaveprivada' \n \t \
-        No olvides reemplazar STRIPE_SECRET_KEY por tu clave privada. \n \t \f")
+        No olvides reemplazar STRIPE_SECRET_KEY por tu clave privada. \n \t \f"
+    )
