@@ -4,8 +4,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 // local layout imports
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import Payments from "./components/Payments";
-import SuccesPayment from "./components/SuccesPayment";
 
 // local pages imports
 import Home from "./pages/Home";
@@ -24,7 +22,6 @@ import Register from "./pages/auth/Register";
 import { AuthContextProvider } from "./context/authContext";
 import PublicRoute from "./context/routes/PublicRoute";
 import PrivateRoute from "./context/routes/PrivateRoute";
-import Products from "./pages/Products";
 
 export default function App() {
   return (
@@ -54,15 +51,12 @@ export default function App() {
               <Route path="/createproject" element={<CreateProject />} />
               {/* EDITAR PROYECTO */}
               <Route path="/editproject/:id" element={<EditProject />} />
-              {/* Login and register */}
-              <Route path="" element={<PrivateRoute />}>
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-              </Route>
-              {/* Payments */}
-              <Route path="/products" element={<Products />} />
-              <Route path="/payments/:product_id" element={<Payments />} />
-              <Route path="/payment/success" element={<SuccesPayment />} />
+            </Route>
+            {/* Private routes  =====================================*/}
+            {/* Login and register */}
+            <Route path="" element={<PrivateRoute />}>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
             </Route>
           </Routes>
           <Footer />
