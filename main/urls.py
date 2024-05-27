@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework import routers
-from .views import Taskview, ProjectView
+from .views import Taskview, ProjectView, PersonView
 from django.conf import settings
 from django.conf.urls.static import static
 # para documentar la API de manera automática
@@ -11,6 +11,7 @@ router = routers.DefaultRouter()
 
 router.register(r'tasks', Taskview, "tasks")
 router.register(r'projects', ProjectView, "projects")
+router.register(r'persons', PersonView, "persons")
 
 urlpatterns = [
     path("api/", include(router.urls)),

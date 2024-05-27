@@ -1,5 +1,5 @@
-from .serializers import TaskSerializer, ProjectSerializer
-from .models import Task, Project
+from .serializers import TaskSerializer, ProjectSerializer, PersonSerializer
+from .models import Task, Project, Person
 
 from rest_framework import viewsets, permissions
 
@@ -15,5 +15,13 @@ class Taskview(viewsets.ModelViewSet):
 class ProjectView(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
     queryset = Project.objects.all()
+    # Sobrescribes los permisos que se configuran en el settings.py pa q funcione la lib
+    permission_classes = [permissions.AllowAny]
+
+
+# API REST DE CREAR Y LISTAR PERSONAS
+class PersonView(viewsets.ModelViewSet):
+    serializer_class = PersonSerializer
+    queryset = Person.objects.all()
     # Sobrescribes los permisos que se configuran en el settings.py pa q funcione la lib
     permission_classes = [permissions.AllowAny]
